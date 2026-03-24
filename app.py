@@ -9,7 +9,7 @@ CORS(app)
 
 #### CONFIGURACION DE SQLALCHEMY ####
 app.app_context().push()
-app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql://root:root@localhost:3306/db_g6'
+app.config['SQLALCHEMY_DATABASE_URI'] = config('DATABASE_URL')
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 db = SQLAlchemy(app)

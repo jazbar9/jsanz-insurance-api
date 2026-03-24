@@ -6,7 +6,7 @@ flask-sqlalchemy
 flask-marshmallow
 marshmallow-sqlalchemy
 mysqlclient
-#psycopg2-binary
-#python-decouple
-#gunicorn
-#flask-cors
+psycopg2-binary
+python-decouple
+gunicorn
+flask-cors
