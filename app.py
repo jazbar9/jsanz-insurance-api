@@ -21,8 +21,8 @@ class Insurance(db.Model):
     age = db.Column(db.Integer,nullable=False)
     price = db.Column(db.Double,nullable=True)
     
-    def __init__(self,rooms):
-        self.rooms = rooms
+    def __init__(self, age):
+        self.age = age
         
 ### CREAMOS UN ESQUEMA PAARA SERIALIZAR LOS DATOS
 ma = Marshmallow(app)
@@ -58,7 +58,7 @@ def predict_price(age):
 def index():
     context = {
         'title':'TRABAJO FINAL MOULO 8',
-        'message':'AUTOR : Jazmina Sanz Salluca '
+        'message':'AUTOR :- '
     }
     return jsonify(context)
 
@@ -74,6 +74,78 @@ def insurance_price():
     
     return jsonify(context)
 
+
+##### RUTAS PARA INSURANCE API
+@app.route('/insurance',methods=['POST'])
+def set_data():
+    age = request.json['age']
+    price = predict_price(age)
+    
+    #registramos los datos en la tabla
+    new_insurance = Insurance(age)
+    new_insurance.price = price
+    db.session.add(new_insurance)
+    db.session.commit()  #insert into...
+    
+    data_schema = InsuranceSchema()
+    
+    context = data_schema.dump(new_insurance)
+    
+    return jsonify(context)
+
+@app.route('/insurance',methods=['GET'])
+def get_data():
+    data = Insurance.query.all() # select * from insurance
+    data_schema = InsuranceSchema(many=True)
+    return jsonify(data_schema.dump(data))
+
+@app.route('/insurance/<int:id>',methods=['GET'])
+def get_data_by_id(id):
+    data = Insurance.query.get(id) # select * from insurance where id = id
+    data_schema = InsuranceSchema()
+    
+    return jsonify(data_schema.dump(data)),200 if data else 404
+
+@app.route('/insurance/<int:id>',methods=['PUT'])
+def update_data(id):
+    data = Insurance.query.get(id) # select * from insurance where id = id
+    if not data:
+        context = {
+            'message':'Registro no encontrado'
+        }
+        return jsonify(context),404
+    
+    age = request.json['age']
+    price = predict_price(age)
+    
+    data.age = age
+    data.price = price
+    db.session.commit()
+    
+    data_schema = InsuranceSchema()
+    
+    return jsonify(data_schema.dump(data)),200
+
+@app.route('/insurance/<int:id>',methods=['DELETE'])
+def delete_data(id):
+    data = Insurance.query.get(id)
+    
+    if not data:
+        context = {
+            'message':'Registro no encontrado'
+        }
+        return jsonify(context),404
+    
+    db.session.delete(data) #delete from housing
+    db.session.commit()
+    
+    context = {
+        'message':'Registro eliminado correctamente'
+    }
+    
+    return jsonify(context),200
+
     
 if __name__ == '__main__':
     app.run(debug=True)
+
